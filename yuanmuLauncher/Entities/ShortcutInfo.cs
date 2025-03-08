@@ -68,9 +68,41 @@ namespace yuanmu.Entities
             {
                 try
                 {
-                    System.Diagnostics.Process.Start(FileFullPath);
+                    if (string.IsNullOrEmpty(FileFullPath))
+                        return;
+
+                    // 检查是否为文件夹
+                    if (System.IO.Directory.Exists(FileFullPath))
+                    {
+                        // 使用explorer打开文件夹
+                        System.Diagnostics.ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo
+                        {
+                            FileName = "explorer.exe",
+                            Arguments = $"\"{FileFullPath}\"",
+                            UseShellExecute = true
+                        };
+                        System.Diagnostics.Process.Start(startInfo);
+                    }
+                    // 检查是否为文件
+                    else if (System.IO.File.Exists(FileFullPath))
+                    {
+                        // 使用系统关联的程序打开文件
+                        System.Diagnostics.ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo
+                        {
+                            FileName = FileFullPath,
+                            UseShellExecute = true
+                        };
+                        System.Diagnostics.Process.Start(startInfo);
+                    }
+                    else
+                    {
+                        MessageBoxHelper.ShowErrorMessage($"文件不存在: {FileFullPath}");
+                    }
                 }
-                catch { }
+                catch (Exception ex)
+                {
+                    MessageBoxHelper.ShowErrorMessage($"无法打开文件: {ex.Message}");
+                }
             }).Start();
         }
 
@@ -78,13 +110,15 @@ namespace yuanmu.Entities
         internal void AddNewShortcutToDB()
         {
             SqliteHelper.Instance.ExecuteNonQuery(
-                "insert into ShortcutInfo (GroupID,ID,FileFullPath,FileRename) values (@GroupID,@ID,@FileFullPath,@FileRename)",
+                "insert into ShortcutInfo (GroupID,ID,FileFullPath,FileRename,SortOrder) values (@GroupID,@ID,@FileFullPath,@FileRename,@SortOrder)",
                 new Dictionary<string, object>()
                 {
                     {"GroupID",this.GroupID },
                     {"ID",this.ID },
                     {"FileFullPath",this.FileFullPath },
                     {"FileRename",this.FileName},
+                    {"SortOrder",this.SortOrder},
+
                 });
         }
 
@@ -106,7 +140,7 @@ namespace yuanmu.Entities
                 "update ShortcutInfo set FileRename=@FileRename, SortOrder=@SortOrder where ID=@Id",
                 new Dictionary<string, object>()
                 {
-                    {"FileRename", this.FileRename},
+                    {"FileRename", this.FileRename ?? ""},
                     {"SortOrder", this.SortOrder},
                     {"Id", this.ID}
                 });

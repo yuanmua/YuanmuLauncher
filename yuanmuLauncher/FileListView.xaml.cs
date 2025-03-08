@@ -287,7 +287,6 @@ namespace yuanmu
                 CreateDesktopShortcut(item);
             }
         }
-
         private void MIOpenFolder_Click(object sender, RoutedEventArgs e)
         {
             try
@@ -332,10 +331,14 @@ namespace yuanmu
 
         private void ContextMenu_ContextMenuOpening(object sender, ContextMenuEventArgs e)
         {
+            //if (lbFiles.SelectedItem != null)
+            //{
+            //    (((FrameworkElement)sender).ContextMenu.Items.GetItemAt(5) as MenuItem).Visibility =
+            //        (lbFiles.SelectedItem as ShortcutInfo).FileFullPath.ToLower().EndsWith(".exe") ? Visibility.Visible : Visibility.Collapsed;
+            //}
             if (lbFiles.SelectedItem != null)
             {
-                (((FrameworkElement)sender).ContextMenu.Items.GetItemAt(5) as MenuItem).Visibility =
-                    (lbFiles.SelectedItem as ShortcutInfo).FileFullPath.ToLower().EndsWith(".exe") ? Visibility.Visible : Visibility.Collapsed;
+                (((FrameworkElement)sender).ContextMenu.Items.GetItemAt(5) as MenuItem).Visibility = Visibility.Visible;
             }
         }
 
